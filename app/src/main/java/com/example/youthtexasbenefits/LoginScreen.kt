@@ -15,6 +15,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,22 +26,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.youthtexasbenefits.ui.LoginViewModel
-import androidx.compose.runtime.setValue;
+import androidx.compose.runtime.setValue
 
 
 @Composable
 fun LoginScreen(loginViewModel: LoginViewModel = viewModel()){
 
+    val loginMessage by loginViewModel._loginMessage
 
-    val userName by remember {
-        loginViewModel.username
-    }
-
-    val password by remember {
-        loginViewModel.password
-    }
-
-    val loginResult by remember{loginViewModel.loginResult}
+    var userName by remember { mutableStateOf("") }
+    var  password by remember { mutableStateOf("") }
 
     val mediumPadding= dimensionResource(R.dimen.padding_medium)
 
@@ -51,22 +46,15 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()){
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
-        OutlinedTextField(value = userName, onValueChange = {
-          loginViewModel.username.value = it
-        },
-            label = {
-                Text(text = stringResource(R.string.username),
-                    fontSize =16.sp)
-            },
-            modifier = Modifier.fillMaxWidth()
+       OutlinedTextField(value = userName, onValueChange = {
+           userName=it
+        }
         )
-
 
         Spacer(modifier = Modifier.padding(mediumPadding))
 
-
         OutlinedTextField(value = password, onValueChange = {
-           loginViewModel.password.value = it
+            password = it
         },
             label = {
                 Text(text = stringResource(R.string.password),
@@ -76,7 +64,6 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()){
                 .fillMaxWidth()
         )
 
-
         Spacer(modifier = Modifier.padding(mediumPadding))
 
         Button(
@@ -84,7 +71,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()){
                 .height(50.dp)
                 .width(350.dp),
             onClick = {
-                  loginViewModel.login() },
+                loginViewModel.login(userName,password) },
             enabled = true,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF2D4356),
@@ -98,18 +85,11 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()){
             )
         }
 
-
         Spacer(modifier = Modifier.padding(mediumPadding))
 
-        //handle login result
-        when (val result=loginResult ) {
-            is LoginViewModel.Result.Success ->
-                Text("Success: ${result.message}", color = MaterialTheme.colorScheme.primary)
-
-            is LoginViewModel.Result.Error -> {
-                Text("Error: ${result.errorMessage}", color = MaterialTheme.colorScheme.error)
-            }
-            else -> {}
-        }
+        Text(
+            text = loginMessage,
+            style = MaterialTheme.typography.bodyLarge
+        )
     }
 }
